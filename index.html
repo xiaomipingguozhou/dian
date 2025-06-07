@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>灯具年耗电计算器</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .calculator {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 30px;
+        }
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            align-items: center;
+        }
+        .incandescent {
+            background-color: #ffebee;
+            border-left: 6px solid #f44336;
+        }
+        .cfl {
+            background-color: #e8f5e9;
+            border-left: 6px solid #4CAF50;
+        }
+        .led {
+            background-color: #e3f2fd;
+            border-left: 6px solid #2196F3;
+        }
+        .cost {
+            font-weight: bold;
+            color: #e91e63;
+            font-size: 18px;
+        }
+        .savings {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #fff8e1;
+            border-radius: 6px;
+            border-left: 6px solid #ffc107;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #d81b60;
+            font-size: 18px;
+        }
+        .power-info {
+            font-size: 14px;
+            color: #666;
+            margin-top: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>灯具年耗电计算器</h1>
+        
+        <div class="input-group">
+            <label for="hours">每天使用小时数:</label>
+            <input type="number" id="hours" min="0" max="24" step="0.5" value="5" placeholder="请输入每天使用的小时数">
+        </div>
+        
+        <div class="input-group">
+            <label for="price">电价 (元/度):</label>
+            <input type="number" id="price" min="0" step="0.01" value="0.6" placeholder="请输入当地电价">
+        </div>
+        
+        <button onclick="calculate()">计算年耗电量及电费</button>
+        
+        <div class="result" id="result">
+            <h2>电费计算结果</h2>
+            <div class="result-item incandescent">
+                <div>
+                    <strong>白炽灯</strong>
+                    <div class="power-info">60W | 年耗电: <span id="incandescentKwh">--</span> 度</div>
+                </div>
+                <div class="cost" id="incandescentCost">-- 元</div>
+            </div>
+            <div class="result-item cfl">
+                <div>
+                    <strong>节能灯</strong>
+                    <div class="power-info">15W | 年耗电: <span id="cflKwh">--</span> 度</div>
+                </div>
+                <div class="cost" id="cflCost">-- 元</div>
+            </div>
+            <div class="result-item led">
+                <div>
+                    <strong>LED灯</strong>
+                    <div class="power-info">9W | 年耗电: <span id="ledKwh">--</span> 度</div>
+                </div>
+                <div class="cost" id="ledCost">-- 元</div>
+            </div>
+            
+            <div class="savings" id="savings">
+                <strong>节省分析:</strong><br>
+                LED灯相比白炽灯每年节省: <span class="highlight" id="savingLED">-- 元</span><br>
+                节能灯相比白炽灯每年节省: <span class="highlight" id="savingCFL">-- 元</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculate() {
+            // 获取输入值
+            const hoursPerDay = parseFloat(document.getElementById('hours').value);
+            const pricePerKwh = parseFloat(document.getElementById('price').value);
+            
+            // 验证输入
+            if (isNaN(hoursPerDay) || hoursPerDay <= 0) {
+                alert('请输入有效的小时数');
+                return;
+            }
+            
+            if (isNaN(pricePerKwh) || pricePerKwh <= 0) {
+                alert('请输入有效的电价');
+                return;
+            }
+            
+            // 计算年耗电量
+            const daysPerYear = 365;
+            const totalHours = hoursPerDay * daysPerYear;
+            
+            // 各灯具功率 (单位: W)
+            const incandescentPower = 60;
+            const cflPower = 15;
+            const ledPower = 9;
+            
+            // 计算耗电量 (单位: kWh)
+            const incandescentKwh = (incandescentPower * totalHours) / 1000;
+            const cflKwh = (cflPower * totalHours) / 1000;
+            const ledKwh = (ledPower * totalHours) / 1000;
+            
+            // 计算电费
+            const incandescentCost = incandescentKwh * pricePerKwh;
+            const cflCost = cflKwh * pricePerKwh;
+            const ledCost = ledKwh * pricePerKwh;
+            
+            // 显示结果
+            document.getElementById('incandescentKwh').textContent = incandescentKwh.toFixed(2);
+            document.getElementById('incandescentCost').textContent = incandescentCost.toFixed(2) + ' 元';
+            
+            document.getElementById('cflKwh').textContent = cflKwh.toFixed(2);
+            document.getElementById('cflCost').textContent = cflCost.toFixed(2) + ' 元';
+            
+            document.getElementById('ledKwh').textContent = ledKwh.toFixed(2);
+            document.getElementById('ledCost').textContent = ledCost.toFixed(2) + ' 元';
+            
+            // 计算节省
+            const savingCFL = incandescentCost - cflCost;
+            const savingLED = incandescentCost - ledCost;
+            
+            document.getElementById('savingLED').textContent = savingLED.toFixed(2) + ' 元 (' + (savingLED/incandescentCost*100).toFixed(0) + '%)';
+            document.getElementById('savingCFL').textContent = savingCFL.toFixed(2) + ' 元 (' + (savingCFL/incandescentCost*100).toFixed(0) + '%)';
+        }
+        
+        // 页面加载时自动计算一次
+        window.onload = calculate;
+        
+        // 输入变化时自动重新计算
+        document.getElementById('hours').addEventListener('input', calculate);
+        document.getElementById('price').addEventListener('input', calculate);
+    </script>
+</body>
+</html>
